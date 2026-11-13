@@ -136,7 +136,7 @@
       download.type = 'button';
       download.setAttribute('aria-label', `Baixar imagem do ID ${id}`);
       download.title = `Baixar PNG do ID ${id}`;
-      download.innerHTML = '<svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 2.5v9m0 0 3.5-3.5M10 11.5 6.5 8M3.5 13v3.5h13V13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      download.innerHTML = '<svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg>';
       meta.append(tagId, download);
       card.append(meta);
       return { id, card, download };

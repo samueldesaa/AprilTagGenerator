@@ -57,8 +57,8 @@
         <label class="field-label" for="resolution">Resolução da imagem</label>
         <div class="select-wrap"><select id="resolution" name="resolution"><option value="480">480 × 480 px</option><option value="800" selected>800 × 800 px</option><option value="1200">1200 × 1200 px</option><option value="1600">1600 × 1600 px</option></select></div>
         <p class="hint">PNG em preto e branco, com margem branca para impressão.</p>
-        <button class="primary-button" id="download-all" type="button"><span aria-hidden="true">↓</span> Baixar todas as imagens <span class="button-count" id="button-count">3 PNGs</span></button>
-        <p class="privacy-note"><span aria-hidden="true">⌁</span> Os arquivos são gerados aqui. Nada é enviado.</p>
+        <button class="primary-button" id="download-all" type="button"><svg class="icon icon-button" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/></svg> Baixar todas as imagens <span class="button-count" id="button-count">3 PNGs</span></button>
+        <p class="privacy-note"><svg class="icon icon-privacy" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11Z"/><path d="m9 12 2 2 4-4"/></svg> Os arquivos são gerados aqui. Nada é enviado.</p>
         <p class="error" id="error" role="alert" hidden></p>
       </form>
 
@@ -66,11 +66,11 @@
         <div class="preview-header"><div class="section-heading"><span class="step">02</span><div><h2 id="preview-title">Pré-visualização</h2><p id="preview-subtitle">3 marcadores selecionados</p></div></div><span class="format-badge">PNG · ALTO CONTRASTE</span></div>
         <div class="tag-grid" id="tag-grid" aria-live="polite" aria-busy="true"></div>
         <nav class="pagination" id="pagination" aria-label="Paginação da pré-visualização" hidden>
-          <button class="page-button" id="previous-page" type="button" aria-label="Página anterior">← Anterior</button>
+          <button class="page-button" id="previous-page" type="button" aria-label="Página anterior"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg> Anterior</button>
           <span class="page-status" id="page-status" aria-live="polite">Página 1 de 1</span>
-          <button class="page-button" id="next-page" type="button" aria-label="Próxima página">Próxima →</button>
+          <button class="page-button" id="next-page" type="button" aria-label="Próxima página">Próxima <svg class="icon" aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button>
         </nav>
-        <div class="preview-footer"><span class="legend-square" aria-hidden="true"></span><span>Área preta = código do marcador</span><span class="preview-resolution" id="resolution-label">800 × 800 px</span></div>
+        <div class="preview-footer"><svg class="icon icon-checker" aria-hidden="true" viewBox="0 0 16 16" fill="currentColor"><path d="M2 2h5v5H2zm7 0h5v5H9zM2 9h5v5H2zm7 0h5v5H9z"/></svg><span>Área preta = código do marcador</span><span class="preview-resolution" id="resolution-label">800 × 800 px</span></div>
       </section>
     </section>
     <footer class="page-footer"><span>AprilTag Studio</span><span>Marcadores fiduciais para visão computacional</span></footer>

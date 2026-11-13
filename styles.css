@@ -72,7 +72,13 @@ select:focus-visible, input:focus-visible, button:focus-visible { outline: 3px s
 .page-button:hover:not(:disabled) { background: var(--green-pale); border-color: #bfd8ca; }
 .page-button:disabled { opacity: .48; cursor: not-allowed; }
 .page-status { color: var(--muted); font-size: .72rem; font-variant-numeric: tabular-nums; text-align: center; }
-.tag-download svg { width: 19px; height: 19px; }
+.icon { display: inline-block; width: 18px; height: 18px; flex: 0 0 auto; }
+.icon-button { width: 19px; height: 19px; }
+.icon-privacy { width: 15px; height: 15px; color: var(--green); }
+.icon-checker { width: 12px; height: 12px; flex: 0 0 auto; }
+.tag-download .icon { width: 19px; height: 19px; }
+.primary-button .icon-button { color: currentColor; }
+.pagination .page-button { display: inline-flex; align-items: center; justify-content: center; gap: 5px; }
 .primary-button:disabled { opacity: .7; cursor: progress; }
 .range-inputs input:invalid { border-color: #bb4848; }
 .tag-grid { grid-template-columns: repeat(auto-fill, minmax(min(145px, 100%), 1fr)); }
@@ -92,7 +98,6 @@ select:focus-visible, input:focus-visible, button:focus-visible { outline: 3px s
 .primary-button { display: flex; align-items: center; justify-content: center; gap: 9px; width: 100%; min-height: 46px; padding: 9px 12px; border: 0; border-radius: 9px; background: var(--green); color: white; font-weight: 650; font-size: .78rem; cursor: pointer; transition: background .15s ease, transform .15s ease; }
 .primary-button:hover { background: var(--green-dark); }
 .primary-button:active { transform: translateY(1px); }
-.primary-button > span:first-child { font-size: 1.12rem; line-height: 1; }
 .button-count { padding: 4px 7px; border-radius: 5px; background: rgb(255 255 255 / 15%); font-size: .64rem; font-weight: 550; white-space: nowrap; }
 .privacy-note { margin: 12px 0 0; text-align: center; font-size: .68rem; color: #87918a; }
 .privacy-note span { color: var(--green); font-size: .9rem; }
