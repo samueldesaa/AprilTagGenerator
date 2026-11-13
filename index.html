@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="description" content="Gere e exporte marcadores AprilTag por ID.">
   <title>AprilTag Studio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="styles.css">
+  <meta name="theme-color" content="#f5f6f4">
+  <link rel="icon" href="data:,">
   <script defer src="https://cdn.jsdelivr.net/npm/apriltag@2.0.3/dist/browser.js"></script>
   <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
   <script defer src="app.js"></script>
@@ -35,12 +38,20 @@
         </select>
         <p class="hint">36h11 é uma família popular, com boa distância de Hamming.</p>
 
-        <div class="field-label count-label"><label for="count">Quantidade de IDs</label><output id="count-output" for="count">3 tags</output></div>
-        <input id="count" name="count" type="range" min="1" max="6" value="3">
-        <div class="range-ends"><span>1</span><span>6</span></div>
+        <fieldset class="id-range-fieldset">
+          <legend class="field-label">Faixa de IDs</legend>
+          <p class="hint range-hint">Escolha o primeiro e o último ID. Exemplo: 0 a 258.</p>
+          <div class="range-inputs">
+            <div><label class="input-label" for="start-id">Primeiro ID</label><input id="start-id" name="start-id" type="number" min="0" step="1" value="0" inputmode="numeric" aria-describedby="id-range-help"></div>
+            <span class="range-separator" aria-hidden="true">até</span>
+            <div><label class="input-label" for="end-id">Último ID</label><input id="end-id" name="end-id" type="number" min="0" step="1" value="2" inputmode="numeric" aria-describedby="id-range-help"></div>
+          </div>
+          <p class="range-feedback" id="id-range-help" aria-live="polite">3 tags selecionadas</p>
+        </fieldset>
 
-        <div class="field-label id-heading"><span>IDs incluídos</span><span class="tiny-note">começando do ID 0</span></div>
+        <div class="field-label id-heading"><span>IDs incluídos</span><span class="tiny-note" id="id-range-label">0–2</span></div>
         <div class="id-chips" id="id-chips" aria-live="polite"></div>
+        <p class="hint chip-note">Amostra dos primeiros IDs; a pré-visualização é paginada.</p>
 
         <div class="divider"></div>
         <label class="field-label" for="resolution">Resolução da imagem</label>
@@ -54,6 +65,11 @@
       <section class="preview" aria-labelledby="preview-title">
         <div class="preview-header"><div class="section-heading"><span class="step">02</span><div><h2 id="preview-title">Pré-visualização</h2><p id="preview-subtitle">3 marcadores selecionados</p></div></div><span class="format-badge">PNG · ALTO CONTRASTE</span></div>
         <div class="tag-grid" id="tag-grid" aria-live="polite" aria-busy="true"></div>
+        <nav class="pagination" id="pagination" aria-label="Paginação da pré-visualização" hidden>
+          <button class="page-button" id="previous-page" type="button" aria-label="Página anterior">← Anterior</button>
+          <span class="page-status" id="page-status" aria-live="polite">Página 1 de 1</span>
+          <button class="page-button" id="next-page" type="button" aria-label="Próxima página">Próxima →</button>
+        </nav>
         <div class="preview-footer"><span class="legend-square" aria-hidden="true"></span><span>Área preta = código do marcador</span><span class="preview-resolution" id="resolution-label">800 × 800 px</span></div>
       </section>
     </section>

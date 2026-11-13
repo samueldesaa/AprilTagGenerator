@@ -1,7 +1,9 @@
 (() => {
   const familySelect = document.querySelector('#family');
-  const countInput = document.querySelector('#count');
-  const countOutput = document.querySelector('#count-output');
+  const startInput = document.querySelector('#start-id');
+  const endInput = document.querySelector('#end-id');
+  const rangeFeedback = document.querySelector('#id-range-help');
+  const rangeLabel = document.querySelector('#id-range-label');
   const chips = document.querySelector('#id-chips');
   const grid = document.querySelector('#tag-grid');
   const downloadButton = document.querySelector('#download-all');
@@ -10,23 +12,32 @@
   const resolutionLabel = document.querySelector('#resolution-label');
   const subtitle = document.querySelector('#preview-subtitle');
   const error = document.querySelector('#error');
+  const pagination = document.querySelector('#pagination');
+  const previousPage = document.querySelector('#previous-page');
+  const nextPage = document.querySelector('#next-page');
+  const pageStatus = document.querySelector('#page-status');
   const cache = new Map();
+  const PAGE_SIZE = 12;
+  let page = 0;
+  let renderToken = 0;
 
-  const configNames = {
-    '36h11': '36h11',
-    'tag25h9': '25h9',
-    'tag16h5': '16h5'
-  };
+  const configNames = { '36h11': '36h11', tag25h9: '25h9', tag16h5: '16h5' };
+
+  function currentRange() {
+    return { start: startInput.value === '' ? NaN : Number(startInput.value), end: endInput.value === '' ? NaN : Number(endInput.value) };
+  }
 
   function currentIds() {
-    return Array.from({ length: Number(countInput.value) }, (_, index) => index);
+    const { start, end } = currentRange();
+    if (!Number.isInteger(start) || !Number.isInteger(end) || start < 0 || end < start) return [];
+    if (end - start > 9999) return [];
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
   }
 
   async function loadFamily(family) {
     if (!window.AprilTagFamily) throw new Error('A biblioteca de geração não carregou. Confira sua conexão e recarregue a página.');
     if (!cache.has(family)) {
-      const name = configNames[family];
-      const response = await fetch(`https://cdn.jsdelivr.net/npm/apriltag@2.0.3/families/${name}.json`);
+      const response = await fetch(`https://cdn.jsdelivr.net/npm/apriltag@2.0.3/families/${configNames[family]}.json`);
       if (!response.ok) throw new Error(`Não foi possível carregar a família ${family}.`);
       cache.set(family, new window.AprilTagFamily(await response.json()));
     }
@@ -58,55 +69,99 @@
     return new Promise((resolve, reject) => canvas.toBlob(blob => blob ? resolve(blob) : reject(new Error('Falha ao criar a imagem PNG.')), 'image/png'));
   }
 
-  function updateLabels() {
-    const count = currentIds().length;
-    countOutput.textContent = `${count} ${count === 1 ? 'tag' : 'tags'}`;
+  function updateLabels(ids) {
+    const count = ids.length;
+    const { start, end } = currentRange();
     buttonCount.textContent = `${count} PNG${count === 1 ? '' : 's'}`;
     subtitle.textContent = `${count} ${count === 1 ? 'marcador selecionado' : 'marcadores selecionados'}`;
+    rangeFeedback.textContent = count ? `${count} ${count === 1 ? 'tag selecionada' : 'tags selecionadas'}` : 'Faixa inválida. Use inteiros e no máximo 10.000 IDs por vez.';
+    rangeLabel.textContent = count ? `${start}–${end}` : 'faixa inválida';
+    startInput.setAttribute('aria-invalid', String(!Number.isInteger(start) || start < 0));
+    endInput.setAttribute('aria-invalid', String(!Number.isInteger(end) || end < start || end - start > 9999));
     const fragment = document.createDocumentFragment();
-    currentIds().forEach(id => {
+    ids.slice(0, 12).forEach(id => {
       const chip = document.createElement('span');
-      chip.className = 'id-chip';
-      chip.textContent = `ID ${id}`;
+      chip.className = 'id-chip inline-flex items-center justify-center rounded-md border border-emerald-100 bg-emerald-50 px-2 py-1 text-xs font-semibold text-emerald-800';
+      chip.textContent = String(id);
       fragment.append(chip);
     });
+    if (count > 12) {
+      const more = document.createElement('span');
+      more.className = 'id-chip inline-flex items-center justify-center rounded-md border border-slate-200 bg-slate-50 px-2 py-1 text-xs font-semibold text-slate-600';
+      more.textContent = `+${count - 12} IDs`;
+      fragment.append(more);
+    }
     chips.replaceChildren(fragment);
   }
 
+  function showError(message) {
+    error.textContent = message;
+    error.hidden = false;
+  }
+
   async function render() {
+    const token = ++renderToken;
     const ids = currentIds();
     const resolution = Number(resolutionSelect.value);
-    updateLabels();
+    updateLabels(ids);
     resolutionLabel.textContent = `${resolution} × ${resolution} px`;
     error.hidden = true;
     grid.setAttribute('aria-busy', 'true');
-    const cards = ids.map(id => {
+
+    if (!ids.length) {
+      grid.replaceChildren();
+      pagination.hidden = true;
+      showError('Informe IDs inteiros a partir de zero e certifique-se de que o último ID não é menor que o primeiro.');
+      grid.setAttribute('aria-busy', 'false');
+      return;
+    }
+
+    pagination.hidden = ids.length <= PAGE_SIZE;
+    const pageCount = Math.ceil(ids.length / PAGE_SIZE);
+    page = Math.min(page, pageCount - 1);
+    const visibleIds = ids.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
+    pageStatus.textContent = `Página ${page + 1} de ${pageCount} · IDs ${visibleIds[0]}–${visibleIds[visibleIds.length - 1]}`;
+    previousPage.disabled = page === 0;
+    nextPage.disabled = page >= pageCount - 1;
+    const cards = visibleIds.map(id => {
       const card = document.createElement('article');
       card.className = 'tag-card';
-      card.innerHTML = `<div class="tag-meta"><span class="tag-id">ID ${id}</span><button class="tag-download" type="button" aria-label="Baixar imagem do ID ${id}" title="Baixar PNG">↓</button></div>`;
-      return { id, card };
+      const meta = document.createElement('div');
+      meta.className = 'tag-meta';
+      const tagId = document.createElement('span');
+      tagId.className = 'tag-id';
+      tagId.textContent = `ID ${id}`;
+      const download = document.createElement('button');
+      download.className = 'tag-download';
+      download.type = 'button';
+      download.setAttribute('aria-label', `Baixar imagem do ID ${id}`);
+      download.title = `Baixar PNG do ID ${id}`;
+      download.innerHTML = '<svg aria-hidden="true" viewBox="0 0 20 20" fill="none"><path d="M10 2.5v9m0 0 3.5-3.5M10 11.5 6.5 8M3.5 13v3.5h13V13" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+      meta.append(tagId, download);
+      card.append(meta);
+      return { id, card, download };
     });
     grid.replaceChildren(...cards.map(item => item.card));
     try {
       const family = await loadFamily(familySelect.value);
-      await Promise.all(cards.map(async ({ id, card }) => {
-        if (id >= family.codes.length) throw new Error(`ID ${id} não existe na família selecionada.`);
+      if (token !== renderToken) return;
+      const invalidId = visibleIds.find(id => id >= family.codes.length);
+      if (invalidId !== undefined) throw new Error(`ID ${invalidId} não existe na família selecionada. ${familySelect.value} aceita IDs de 0 a ${family.codes.length - 1}.`);
+      await Promise.all(cards.map(async ({ id, card, download }) => {
         const blob = await makePng(family, id, resolution);
-        const url = URL.createObjectURL(blob);
         const image = document.createElement('img');
         image.className = 'tag-image';
         image.width = resolution;
         image.height = resolution;
         image.alt = `Marcador AprilTag ${familySelect.value}, ID ${id}`;
-        image.src = url;
+        image.src = URL.createObjectURL(blob);
         card.prepend(image);
-        card.querySelector('.tag-download').addEventListener('click', () => saveBlob(blob, `apriltag-${familySelect.value}-id-${id}.png`));
+        download.addEventListener('click', () => saveBlob(blob, `apriltag-${familySelect.value}-id-${id}.png`));
       }));
     } catch (caught) {
-      error.textContent = caught instanceof Error ? caught.message : 'Ocorreu um erro ao gerar os marcadores.';
-      error.hidden = false;
+      if (token === renderToken) showError(caught instanceof Error ? caught.message : 'Ocorreu um erro ao gerar os marcadores.');
     } finally {
-      grid.setAttribute('aria-busy', 'false');
+      if (token === renderToken) grid.setAttribute('aria-busy', 'false');
     }
   }
 
@@ -129,30 +184,31 @@
       const family = await loadFamily(familySelect.value);
       const ids = currentIds();
       const resolution = Number(resolutionSelect.value);
+      const invalidId = ids.find(id => id >= family.codes.length);
+      if (invalidId !== undefined) throw new Error(`ID ${invalidId} não existe na família selecionada. ${familySelect.value} aceita IDs de 0 a ${family.codes.length - 1}.`);
       if (!window.JSZip && ids.length > 1) throw new Error('A biblioteca ZIP não carregou. Confira sua conexão e tente novamente.');
       if (ids.length === 1) {
         saveBlob(await makePng(family, ids[0], resolution), `apriltag-${familySelect.value}-id-${ids[0]}.png`);
       } else {
         const zip = new window.JSZip();
-        for (const id of ids) {
-          if (id >= family.codes.length) throw new Error(`ID ${id} não existe na família selecionada.`);
-          const blob = await makePng(family, id, resolution);
-          zip.file(`apriltag-${familySelect.value}-id-${id}.png`, blob);
-        }
+        for (const id of ids) zip.file(`apriltag-${familySelect.value}-id-${id}.png`, await makePng(family, id, resolution));
         saveBlob(await zip.generateAsync({ type: 'blob' }), `apriltags-${familySelect.value}-ids-${ids[0]}-${ids[ids.length - 1]}.zip`);
       }
     } catch (caught) {
-      error.textContent = caught instanceof Error ? caught.message : 'Ocorreu um erro ao exportar as imagens.';
-      error.hidden = false;
+      showError(caught instanceof Error ? caught.message : 'Ocorreu um erro ao exportar as imagens.');
     } finally {
       downloadButton.disabled = false;
       downloadButton.removeAttribute('aria-busy');
     }
   }
 
-  countInput.addEventListener('input', render);
-  familySelect.addEventListener('change', render);
+  function changeRange() { page = 0; render(); }
+  startInput.addEventListener('input', changeRange);
+  endInput.addEventListener('input', changeRange);
+  familySelect.addEventListener('change', () => { page = 0; render(); });
   resolutionSelect.addEventListener('change', render);
+  previousPage.addEventListener('click', () => { if (page > 0) { page -= 1; render(); grid.scrollIntoView({ block: 'start', behavior: 'smooth' }); } });
+  nextPage.addEventListener('click', () => { page += 1; render(); grid.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
   downloadButton.addEventListener('click', downloadAll);
   render();
 })();
