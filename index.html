@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Gere e exporte marcadores AprilTag por ID.">
+  <title>AprilTag Studio</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/apriltag@2.0.3/dist/browser.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <script defer src="app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="AprilTag Studio, início"><span class="brand-mark" aria-hidden="true">A</span><span>AprilTag <span class="brand-light">Studio</span></span></a>
+    <span class="local-note"><span class="status-dot" aria-hidden="true"></span> Geração local no navegador</span>
+  </header>
+
+  <main class="shell">
+    <section class="intro" aria-labelledby="page-title">
+      <p class="eyebrow">FERRAMENTA DE MARCADORES</p>
+      <h1 id="page-title">Seus tags, <span>prontos para imprimir.</span></h1>
+      <p class="subhead">Configure a família, escolha os IDs e exporte imagens nítidas para o seu projeto.</p>
+    </section>
+
+    <section class="workspace" aria-label="Gerador de AprilTag">
+      <form class="controls" id="tag-form">
+        <div class="section-heading"><span class="step">01</span><div><h2>Configuração</h2><p>Defina o formato e os IDs dos marcadores.</p></div></div>
+
+        <label class="field-label" for="family">Família AprilTag</label>
+        <select id="family" name="family">
+          <option value="36h11">tag36h11 <span>· padrão recomendado</span></option>
+          <option value="tag25h9">tag25h9</option>
+          <option value="tag16h5">tag16h5</option>
+        </select>
+        <p class="hint">36h11 é uma família popular, com boa distância de Hamming.</p>
+
+        <div class="field-label count-label"><label for="count">Quantidade de IDs</label><output id="count-output" for="count">3 tags</output></div>
+        <input id="count" name="count" type="range" min="1" max="6" value="3">
+        <div class="range-ends"><span>1</span><span>6</span></div>
+
+        <div class="field-label id-heading"><span>IDs incluídos</span><span class="tiny-note">começando do ID 0</span></div>
+        <div class="id-chips" id="id-chips" aria-live="polite"></div>
+
+        <div class="divider"></div>
+        <label class="field-label" for="resolution">Resolução da imagem</label>
+        <div class="select-wrap"><select id="resolution" name="resolution"><option value="480">480 × 480 px</option><option value="800" selected>800 × 800 px</option><option value="1200">1200 × 1200 px</option><option value="1600">1600 × 1600 px</option></select></div>
+        <p class="hint">PNG em preto e branco, com margem branca para impressão.</p>
+        <button class="primary-button" id="download-all" type="button"><span aria-hidden="true">↓</span> Baixar todas as imagens <span class="button-count" id="button-count">3 PNGs</span></button>
+        <p class="privacy-note"><span aria-hidden="true">⌁</span> Os arquivos são gerados aqui. Nada é enviado.</p>
+        <p class="error" id="error" role="alert" hidden></p>
+      </form>
+
+      <section class="preview" aria-labelledby="preview-title">
+        <div class="preview-header"><div class="section-heading"><span class="step">02</span><div><h2 id="preview-title">Pré-visualização</h2><p id="preview-subtitle">3 marcadores selecionados</p></div></div><span class="format-badge">PNG · ALTO CONTRASTE</span></div>
+        <div class="tag-grid" id="tag-grid" aria-live="polite" aria-busy="true"></div>
+        <div class="preview-footer"><span class="legend-square" aria-hidden="true"></span><span>Área preta = código do marcador</span><span class="preview-resolution" id="resolution-label">800 × 800 px</span></div>
+      </section>
+    </section>
+    <footer class="page-footer"><span>AprilTag Studio</span><span>Marcadores fiduciais para visão computacional</span></footer>
+  </main>
+</body>
+</html>
